@@ -1,0 +1,45 @@
+FROM python:3.10-slim
+
+# Install build dependencies and tools
+RUN apt-get update && apt-get install -y \
+    make \
+    build-essential \
+    curl \
+    wget \
+    gnupg2 \
+    software-properties-common \
+    git \
+    jq \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Azure CLI
+RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+
+# Install Bicep CLI
+RUN az bicep install
+
+# Install yq (latest version)
+RUN YQ_VERSION=$(curl -s https://api.github.com/repos/mikefarah/yq/releases/latest | jq -r '.tag_name') && \
+    wget -q https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64 -O /usr/local/bin/yq && \
+    chmod +x /usr/local/bin/yq
+
+# Install Go 1.21.6
+RUN wget -q https://go.dev/dl/go1.21.6.linux-amd64.tar.gz \
+    && tar -C /usr/local -xzf go1.21.6.linux-amd64.tar.gz \
+    && rm go1.21.6.linux-amd64.tar.gz
+
+# Set Go environment variables
+ENV PATH=$PATH:/usr/local/go/bin
+ENV GOPATH=/go
+ENV GOBIN=/go/bin
+
+# Install Python dependencies
+RUN pip install PyYAML
+
+# Set working directory
+WORKDIR /workspace
+
+# Create go workspace
+RUN mkdir -p /go/bin /go/src /go/pkg
+
+CMD ["/bin/bash"]

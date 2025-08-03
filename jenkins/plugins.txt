@@ -1,0 +1,9 @@
+# Core Jenkins functionality
+configuration-as-code
+workflow-aggregator
+git
+github
+blueocean
+credentials
+docker-workflow
+job-dsl

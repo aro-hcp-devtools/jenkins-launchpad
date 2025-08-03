@@ -1,0 +1,114 @@
+pipeline {
+    agent {
+        docker {
+            image 'quay.io/supatil/custom-agent:latest'
+            args '--network jenkins'
+            alwaysPull true
+        }
+    }
+
+    parameters {
+        string(name: 'SHORT_USERNAME', description: 'Short username - exactly 4 characters (required)')
+    }
+
+    stages {
+        stage('Validate Parameters') {
+            steps {
+                script {
+                    if (params.SHORT_USERNAME.length() != 4) {
+                        error("SHORT_USERNAME must be exactly 4 characters long. Provided: '${params.SHORT_USERNAME}' (${params.SHORT_USERNAME.length()} characters)")
+                    }
+                    echo "✓ SHORT_USERNAME validation passed: '${params.SHORT_USERNAME}'"
+                }
+            }
+        }
+        stage('Verify Build Environment') {
+            steps {
+                sh '''
+                    echo "Verifying pre-installed tools..."
+                    python3 --version
+                    go version
+                    az version
+                    az bicep version
+                    make --version
+                    jq --version
+                    yq --version
+                '''
+            }
+        }
+        stage('Azure Authentication') {
+             steps {
+                 withCredentials([
+                     string(credentialsId: 'azure-client-id', variable: 'AZURE_CLIENT_ID'),
+                     string(credentialsId: 'azure-tenant-id', variable: 'AZURE_TENANT_ID'),
+                     string(credentialsId: 'azure-client-secret', variable: 'AZURE_CLIENT_SECRET')
+                 ]) {
+                     sh '''
+                         echo "Setting up Azure authentication..."
+                         
+                         echo "Authenticating with Azure using service principal..."
+                         
+                         if az login --service-principal \
+                             --username "$AZURE_CLIENT_ID" \
+                             --tenant "$AZURE_TENANT_ID" \
+                             --password "$AZURE_CLIENT_SECRET" \
+                             >/dev/null 2>&1; then
+                             echo "✓ Successfully authenticated with Azure"
+                             echo "Account details:"
+                             az account show --query '{subscriptionId:id, tenantId:tenantId, name:name}' -o table
+                         else
+                             echo "✗ Azure authentication failed"
+                             exit 1
+                         fi
+                     '''
+                 }
+             }
+         }
+
+        stage('Clone ARO-HCP Repo') {
+            steps {
+                 git url: 'https://github.com/Azure/ARO-HCP.git', branch: 'main'
+            }
+        }
+
+        stage('Create settings file') {
+            steps {
+                sh """
+                    mkdir -p tooling/templatize
+                    python3 -c "
+import yaml
+
+data = {
+    'environments': [
+        {
+            'name': 'pers',
+            'description': 'Used for personal development and testing.\\n',
+            'defaults': {
+                'region': 'westus3',
+                'cloud': 'dev',
+                'ev2Cloud': 'public',
+                'cxStamp': 1,
+                'regionShortSuffix': '${params.SHORT_USERNAME}'
+            }
+        }
+    ]
+}
+
+with open('tooling/templatize/settings.yaml', 'w') as f:
+    yaml.dump(data, f, default_flow_style=False)
+"
+                """
+            }
+        }
+        stage('debug cat settings file') {
+            steps {
+                 sh 'cat tooling/templatize/settings.yaml'
+            }
+        }
+        stage('Run make infra.all') {
+            steps {
+                sh 'make infra.all'
+            }
+        }
+    }
+}

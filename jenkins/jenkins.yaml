@@ -1,0 +1,40 @@
+jenkins:
+  systemMessage: "Jenkins configured automatically!"
+  securityRealm:
+    local:
+      allowsSignup: false
+      users: # TODO: Remove this once we have a proper authentication mechanism
+        - id: admin
+          password: dummy123
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+jobs:
+  - script: >
+      pipelineJob('make-infra') {
+        parameters {
+          stringParam('SHORT_USERNAME', '', 'Short username - exactly 4 characters (required)')
+        }
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote { url('https://github.com/patilsuraj767/ARO-HCP-Jenkins-Dev-Infra.git') }
+                branch('main')
+              }
+            }
+            scriptPath('pipelines/make-infra')
+          }
+        }
+      }
+
+unclassified:
+  location:
+    url: http://0.0.0.0:8080/
+
+tool:
+  git:
+    installations:
+      - name: "Default"
+        home: "/usr/bin/git"
