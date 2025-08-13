@@ -33,3 +33,4 @@ fi
 # Install git
 echo "=====[STEP] Installing Git====="
 sudo apt-get install git -y
+

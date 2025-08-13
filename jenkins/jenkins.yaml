@@ -3,9 +3,6 @@ jenkins:
   securityRealm:
     local:
       allowsSignup: false
-      users: # TODO: Remove this once we have a proper authentication mechanism
-        - id: admin
-          password: dummy123
   authorizationStrategy:
     loggedInUsersCanDoAnything:
       allowAnonymousRead: false
@@ -20,7 +17,7 @@ jobs:
           cpsScm {
             scm {
               git {
-                remote { url('https://github.com/patilsuraj767/ARO-HCP-Jenkins-Dev-Infra.git') }
+                remote { url('https://github.com/aro-hcp-devtools/jenkins-launchpad.git') }
                 branch('main')
               }
             }

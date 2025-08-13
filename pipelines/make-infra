@@ -36,35 +36,6 @@ pipeline {
                 '''
             }
         }
-        stage('Azure Authentication') {
-             steps {
-                 withCredentials([
-                     string(credentialsId: 'azure-client-id', variable: 'AZURE_CLIENT_ID'),
-                     string(credentialsId: 'azure-tenant-id', variable: 'AZURE_TENANT_ID'),
-                     string(credentialsId: 'azure-client-secret', variable: 'AZURE_CLIENT_SECRET')
-                 ]) {
-                     sh '''
-                         echo "Setting up Azure authentication..."
-                         
-                         echo "Authenticating with Azure using service principal..."
-                         
-                         if az login --service-principal \
-                             --username "$AZURE_CLIENT_ID" \
-                             --tenant "$AZURE_TENANT_ID" \
-                             --password "$AZURE_CLIENT_SECRET" \
-                             >/dev/null 2>&1; then
-                             echo "✓ Successfully authenticated with Azure"
-                             echo "Account details:"
-                             az account show --query '{subscriptionId:id, tenantId:tenantId, name:name}' -o table
-                         else
-                             echo "✗ Azure authentication failed"
-                             exit 1
-                         fi
-                     '''
-                 }
-             }
-         }
-
         stage('Clone ARO-HCP Repo') {
             steps {
                  git url: 'https://github.com/Azure/ARO-HCP.git', branch: 'main'
