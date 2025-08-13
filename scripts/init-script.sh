@@ -38,4 +38,4 @@ sudo apt-get install git -y
 echo "=====[STEP] Installing Azure CLI====="
 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-sudo az bicep install
+sudo AZURE_CONFIG_DIR="/home/ubuntu/.azure" az bicep install

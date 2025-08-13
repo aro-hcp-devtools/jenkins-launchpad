@@ -7,9 +7,10 @@ RUN apt-get update && apt-get install -y \
     curl \
     wget \
     gnupg2 \
-    software-properties-common \
     git \
     jq \
+    openssl \
+    postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Azure CLI
@@ -17,6 +18,22 @@ RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
 # Install Bicep CLI
 RUN az bicep install
+
+# Install AKS CLI
+RUN az aks install-cli
+
+# Install kubectl (latest stable version)
+RUN KUBECTL_VERSION=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt) && \
+    wget -q https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl -O /usr/local/bin/kubectl && \
+    chmod +x /usr/local/bin/kubectl
+
+# Install Helm (latest stable version)
+RUN HELM_VERSION=$(curl -s https://api.github.com/repos/helm/helm/releases/latest | jq -r '.tag_name') && \
+    wget -q https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz && \
+    tar -xzf helm-${HELM_VERSION}-linux-amd64.tar.gz && \
+    mv linux-amd64/helm /usr/local/bin/helm && \
+    rm -rf helm-${HELM_VERSION}-linux-amd64.tar.gz linux-amd64/ && \
+    chmod +x /usr/local/bin/helm
 
 # Install yq (latest version)
 RUN YQ_VERSION=$(curl -s https://api.github.com/repos/mikefarah/yq/releases/latest | jq -r '.tag_name') && \

@@ -24,3 +24,17 @@ services:
       - $HOME/.azure:/root/.azure
     networks:
       - jenkins
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ~/ssl:/etc/nginx/ssl
+    depends_on:
+      - jenkins
+    networks:
+      - jenkins
