@@ -36,6 +36,19 @@ pipeline {
                 '''
             }
         }
+        stage('Verify Azure Subscription') {
+            steps {
+                script {
+                    def currentSub = sh(script: 'az account show --query name -o tsv', returnStdout: true).trim()
+                    def expectedSub = 'ARO Hosted Control Planes (EA Subscription 1)'
+
+                    if (currentSub != expectedSub) {
+                        error("Error: Current subscription '${currentSub}' is not supported. Please switch to '${expectedSub}' using: az account set --subscription '${expectedSub}'")
+                    }
+                    echo "✓ Using correct subscription: ${currentSub}"
+                }
+            }
+        }
         stage('Clone ARO-HCP Repo') {
             steps {
                  git url: 'https://github.com/Azure/ARO-HCP.git', branch: 'main'

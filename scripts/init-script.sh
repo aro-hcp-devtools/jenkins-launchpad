@@ -25,7 +25,7 @@ else
 
     echo "=====[STEP] Installing Docker Engine and related packages====="
     sudo DEBIAN_FRONTEND=noninteractive apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
-    sudo usermod -aG docker ${USER}
+    sudo usermod -aG docker ubuntu
     newgrp docker
     echo "=====[INFO] Docker has been successfully installed.====="
 fi
@@ -34,3 +34,8 @@ fi
 echo "=====[STEP] Installing Git====="
 sudo apt-get install git -y
 
+# Install Azure CLI
+echo "=====[STEP] Installing Azure CLI====="
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+sudo az bicep install
