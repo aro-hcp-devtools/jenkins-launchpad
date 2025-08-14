@@ -7,3 +7,4 @@ blueocean
 credentials
 docker-workflow
 job-dsl
+azure-ad

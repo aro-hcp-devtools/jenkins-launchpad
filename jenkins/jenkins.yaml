@@ -28,7 +28,7 @@ jobs:
 
 unclassified:
   location:
-    url: http://0.0.0.0:8080/
+    url: https://jenkins.suraj.ind.in/
 
 tool:
   git:

@@ -94,5 +94,10 @@ with open('tooling/templatize/settings.yaml', 'w') as f:
                 sh 'make infra.all'
             }
         }
+        stage('Run make deployall') {
+            steps {
+                sh 'make deployall'
+            }
+        }
     }
 }

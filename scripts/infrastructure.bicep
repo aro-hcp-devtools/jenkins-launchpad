@@ -31,7 +31,7 @@ resource publicIP 'Microsoft.Network/publicIPAddresses@2024-07-01' = {
     name: 'Basic'
   }
   properties: {
-    publicIPAllocationMethod: 'Dynamic'
+    publicIPAllocationMethod: 'Static'
   }
 }
 
