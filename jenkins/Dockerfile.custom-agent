@@ -41,10 +41,10 @@ RUN YQ_VERSION=$(curl -s https://api.github.com/repos/mikefarah/yq/releases/late
     wget -q https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64 -O /usr/local/bin/yq && \
     chmod +x /usr/local/bin/yq
 
-# Install Go 1.21.6
-RUN wget -q https://go.dev/dl/go1.21.6.linux-amd64.tar.gz \
-    && tar -C /usr/local -xzf go1.21.6.linux-amd64.tar.gz \
-    && rm go1.21.6.linux-amd64.tar.gz
+# Install Go 1.24.6
+RUN wget -q https://go.dev/dl/go1.24.6.linux-amd64.tar.gz \
+    && tar -C /usr/local -xzf go1.24.6.linux-amd64.tar.gz \
+    && rm go1.24.6.linux-amd64.tar.gz
 
 # Set Go environment variables
 ENV PATH=$PATH:/usr/local/go/bin
